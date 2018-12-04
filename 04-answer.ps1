@@ -1,0 +1,1 @@
+$in = gc .\04-input.txt
