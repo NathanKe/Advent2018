@@ -13,7 +13,7 @@ function reduce {
 		else{
 			$peek = $stack.peek()
 			
-			if([Math]::abs([int]$peek-[int]$cur) -eq 32){
+			if(!($peek -bxor $cur -bxor 32)){
 				$stack.pop()>$null
 			}else{
 				$stack.push($cur)
@@ -27,7 +27,6 @@ function reduce {
 write-host (reduce $in)
 $removeSet = (0..25) | % {
 	$n = [char](65+$_)
-	$remove = $in -replace $n,""
-	reduce $remove
+	reduce ($in -replace $n,"")
 }
 write-host ($removeSet | sort | select -first 1)
