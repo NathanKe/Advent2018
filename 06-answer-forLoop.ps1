@@ -3,8 +3,8 @@ $timer.start()
 
 Write-Host "Parse Input, Prep Work"
 
-$coord = gc .\06-input-sample.txt
-$regionThreshold = 32
+$coord = gc .\06-input.txt
+$regionThreshold = 10000
 
 $i = 0
 $spots = $coord | % {
@@ -47,8 +47,8 @@ for($i = $leftBound;$i -le $rightBound;$i++) {
 	
 	$grid.add($cx,@{})
 	
-	for($j = $topBound;$j -le $topBound;$j++) {
-		$cy = $j
+	for($j = $topBound;$j -le $bottomBound;$j++) {
+		$cy = $J
 		
 		if($cy -eq $topBound -or $cy -eq $bottomBound){
 			$rowBorder = $true
@@ -62,15 +62,15 @@ for($i = $leftBound;$i -le $rightBound;$i++) {
 		$closestDist = ($bottomBound-$topBound)+($rightBound-$leftBound) #max possible distance is opposite corners of grid
 		$tieCount = 0
 		$closestPoint = ""
-		$spots | %{
-			$curDist = [math]::abs($cx - $_.x)+[math]::abs($cy-$_.y)
+		for($k=0;$k -lt $spots.count;$k++){
+			$curDist = [math]::abs($cx - ($spots[$k].x))+[math]::abs($cy-($spots[$k].y))
 			
 			if($curDist -eq $closestDist){
 				$tieCount++
 				$closestPoint = "_"
 			}elseif($curDist -lt $closestDist){
 				$closestDist = $curDist
-				$closestPoint = $_.point
+				$closestPoint = $spots[$k].point
 			}
 			
 			$totalDist += $curDist
