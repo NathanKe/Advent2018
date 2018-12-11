@@ -10,81 +10,53 @@ $players = 1..$numPlayers |% {
 	}
 }
 
-function circNext{
-	$cur = $args[0]
-	if($cur.next){
-		$cur.next
-	}else{
-		$cur.list.first
-	}
-}
-function circPrev{
-	$cur = $args[0]
-	if($cur.prev){
-		$cur.prev
-	}else{
-		$cur.list.last
-	}
-}
-
 $currentNode = $circle.addFirst(0)
 $playerIndex = 0
-for($nextMarble=1;$nextMarble -le 22;$nextMarble++){
+for($nextMarble=1;$nextMarble -le $lastNumber;$nextMarble++){
 	if($nextMarble % 23 -ne 0){
-		# Step 2 and Add
-		
-		$currentNode = circNext $currentNode
-		$currentNode = circNext $currentNode
+		# Step 1, Add, Step 1
+		if($currentNode.next){
+			$currentNode = $currentNode.next
+		}else{
+			$currentNode = $currentNode.list.first
+		}
 		$circle.addAfter($currentNode,$nextMarble)>$null
+		
+		if($currentNode.next){
+			$currentNode = $currentNode.next
+		}else{
+			$currentNode = $currentNode.list.first
+		}
 	}else{
+		# Add Next to score
 		$players[$playerIndex].score+=$nextMarble
 		
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
-		$currentNode = circPrev $currentNode
+		# Go back 7
+		for($i = 1;$i -le 7;$i++){
+			if($currentNode.previous){
+				$currentNode = $currentNode.previous
+			}else{
+				$currentNode = $currentNode.list.last
+			}
+		}
 		
+		# Capture New Next
+		if($currentNode.next){
+			$nextNode = $currentNode.next
+		}else{
+			$nextNode = $currentNode.list.first
+		}
+		
+		# Add value of current, remove current
 		$players[$playerIndex].score+=$currentNode.value
 		$circle.remove($currentNode)
+		
+		#Set current to next
+		$currentNode = $nextNode
 	}
 	
 	#Increment Player
 	$playerIndex = ($playerIndex + 1)%$numPlayers
-	
-	#Write Diagnostic
-	$str =  $circle -join "-"
-	write-host $str
 }
 
-
-#for($next = 4;$next -le $lastNumber;$next++){
-#	if($next % 23 -eq 0){
-#		#Handle Points
-#		$currIndex = $currIndex-7
-#		if($currIndex -lt 0){
-#			$currIndex = $circle.count + $currIndex
-#		}
-#		$players[$playerIndex].score += $next
-#		$players[$playerIndex].score += $circle[$currIndex]
-#		$circle.RemoveAt($currIndex)
-#	}else{
-#		#Place Correctly
-#		
-#		$indexToPlace = ($currIndex+2)%($circle.count)
-#		#Place At End or Middle
-#		if($indexToPlace -eq 0){
-#			$circle.Insert($circle.count,$next)
-#			$currIndex = $circle.IndexOf($next)
-#		}else{
-#			$circle.Insert($indexToPlace,$next)
-#			$currIndex = $circle.IndexOf($next)
-#		}
-#	}
-#	
-#	$playerIndex = ($playerIndex + 1)%$numPlayers
-#}
-#
-#$players | sort score -descending | select -first 1
+$players | sort score -descending | select -first 1
